@@ -1,0 +1,813 @@
+//url_link = "https://www.superteacherworksheets.com/"; 
+url_link = "/";
+
+function GetXmlHttpObject() {
+if (window.XMLHttpRequest) // code for IE7+, Firefox, Chrome, Opera, Safari
+	{
+	return new XMLHttpRequest();
+	}
+if (window.ActiveXObject)
+	{
+	// IE5, 6
+	return new ActiveXObject("Microsoft.XMLHTTP");
+	}
+return null;
+}
+
+function admin_cc_add_ws_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	alert(result);
+	document.getElementById("accadd"+glob_accaddidnum_num).value = "";
+	}
+}
+
+function admin_cc_add_ws(accaddid, accaddidnum) {
+//alert(accaddid);
+if (document.getElementById("accadd"+accaddidnum).value.indexOf(".pdf") == -1)
+	{
+	alert('Please enter a valid pdf link.');
+	}
+else
+	{
+	if (document.getElementById("accadd"+accaddidnum).value.indexOf("_") == -1)
+		{
+		alert('Please make sure you enter the PDF URL with the underscore if one is available!');
+		}
+	pdfurlsub = document.getElementById("accadd"+accaddidnum).value;
+	xmlhttp=GetXmlHttpObject(); if (xmlhttp===null) {alert("Your browser does not support AJAX!"); return;}
+	if (pdfurlsub.indexOf("https://www.superteacherworksheets.com") != -1)
+		{
+		pdfurl = pdfurlsub.substring(38);
+		}
+	else if (pdfurlsub.indexOf("https://www.superteacherworksheets.com") != -1)
+		{
+		pdfurl = pdfurlsub.substring(39);
+		}
+	else if (pdfurlsub.indexOf("superteacherworksheets.com") != -1)
+		{
+		pdfurl = pdfurlsub.substring(26);
+		}
+	else
+		{
+		pdfurl = pdfurlsub;
+		}
+	glob_accaddidnum_num = accaddidnum;
+	if (pdfurl.indexOf("/printables/") != -1) {pdfurl = pdfurl.substring(0, pdfurl.indexOf("/printables/")) + pdfurl.substring(pdfurl.indexOf("/printables/")+11);}
+	var url = url_link + "build/ajax_processing.php";
+	url = url + "?act=admin_cc_add_ws";
+	url = url + "&ur="+pdfurl;
+	url = url + "&cc="+accaddid;
+	url = url + "&wt="+document.getElementById("accaddw"+accaddidnum).value;
+	var randomnumber=Math.floor(Math.random()*99999);
+	url=url+"&rn="+randomnumber;
+	//alert(url); return;
+	xmlhttp.open("GET",url,false);
+	xmlhttp.onreadystatechange=admin_cc_add_ws_result;
+	xmlhttp.send(null);
+	}
+}
+
+function cc_sel_show() {
+document.getElementById("cc_sel_toggle").style.display = "none";
+document.getElementById("cc_sel_options").style.display = "block";
+}
+
+function cc_sel_update_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	//alert(result);
+	resultlist = result.substring(0, result.indexOf("|||"));
+	document.getElementById("cc_sel_results").innerHTML = resultlist;
+	resultselect = result.substring(result.indexOf("|||")+3);
+	if (glob_cc_sel_id == 1)
+		{
+		document.getElementById("cc_sel_ct").innerHTML = resultselect;
+		}
+	}
+}
+
+function cc_sel_update(cc_sel_id) {
+if (cc_sel_id == 1)
+	{
+	if (document.getElementById("cc_sel_gl").value != "-" && document.getElementById("cc_sel_ms").value != "-")
+		{
+		document.getElementById("cc_sel_results").innerHTML = "";
+		var url = url_link + "build/ajax_processing.php";
+		glob_cc_sel_id = 1;
+		}
+	else
+		{
+		document.getElementById("cc_sel_ct").value = "-";
+		return;
+		}
+	}
+else if (cc_sel_id == 2)
+	{
+	if (document.getElementById("cc_sel_gl").value != "-")
+		{
+		document.getElementById("cc_sel_results").innerHTML = "Loading Results...";
+		var url = url_link + "build/ajax_processing.php";
+		glob_cc_sel_id = 2;
+		}
+	else
+		{
+		return;
+		}
+	}
+xmlhttp=GetXmlHttpObject(); if (xmlhttp===null) {alert("Your browser does not support AJAX!"); return;}
+url = url + "?act=cc_populate_browse";
+url = url + "&gl="+document.getElementById("cc_sel_gl").value;
+url = url + "&ms="+document.getElementById("cc_sel_ms").value;
+if (cc_sel_id == 2) {url = url + "&ct="+document.getElementById("cc_sel_ct").value;}
+var randomnumber=Math.floor(Math.random()*99999);
+url=url+"&rn="+randomnumber;
+//alert(url); //return;
+xmlhttp.open("GET",url,false);
+xmlhttp.onreadystatechange=cc_sel_update_result;
+xmlhttp.send(null);
+}
+
+function count_dl_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	//alert(result);
+    }
+}
+
+function count_dl(dl_item_id, dl_type) {
+xmlhttp=GetXmlHttpObject();
+if (xmlhttp===null) {alert("Your browser does not support AJAX!"); return;}
+var url = url_link + "build/ajax_processing.php";
+url = url + "?act=countdl";
+url = url + "&dlid="+dl_item_id; 
+if (dl_type == "PreviewPDF") {dl_type_new = "pdfpv";}
+else if (dl_type == "LoggedInPDF") {dl_type_new = "pdf";}
+else if (dl_type == "LoggedInPDFSP") {dl_type_new = "pdfsp";}
+else if (dl_type == "LoggedInPDFCA") {dl_type_new = "pdfca";}
+else if (dl_type == "LoggedInPDFAV") {dl_type_new = "pdfav";} // added 3.17.2017 
+else if (dl_type == "LoggedInPDFA2" || dl_type == "LoggedInPDFA3") {dl_type_new = "pdfa2";} // added 3.17.2017 
+else if (dl_type == "LoggedInPDFAK") {dl_type_new = "pdfak";} // added 8.19.2020
+else {dl_type_new = dl_type;}
+url = url + "&dltype="+dl_type_new;
+var randomnumber=Math.floor(Math.random()*99999);
+url=url+"&rn="+randomnumber;
+//alert(url); //return;
+xmlhttp.open("GET",url,false);
+xmlhttp.onreadystatechange=count_dl_result;
+xmlhttp.send(null);
+}
+
+function add_favorite_new_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	//alert(result); 
+	//document.getElementById("sv1data").innerHTML = '<br>This document has been saved in your Super Teacher Worksheets filing cabinet.<br><br><br>Here you can quickly access all of your favorite worksheets and custom generated files in one place!<br><br>'; 
+	/*************
+		no longer need here 7-3-19
+	document.getElementById("fc_mod_innertext").innerHTML = "This document has been saved in your Super Teacher Worksheets filing cabinet.</p><p>Here you can quickly access all of your favorite worksheets and custom generated files in one place!</p><p>Go to your <a href='/filing-cabinet.html'>STW filing cabinet</a> now.</p>";
+	
+	*************/
+	//document.getElementById("sv2").style.display = "block";
+	//if (current_uid == 1202330) {alert(1);}
+	/*************/
+	//document.getElementById("img"+current_url).src = "/images/button-file-cabinet-on.png"; // to change file cabinet image // not needed 7-3-19
+	//if (current_uid == 1202330) {alert(2);}
+	if (current_act == "add") {new_act = "del";} else if (current_act == "del") {new_act = "add";}
+	//if (current_uid == 1202330) {alert(3);}
+	//return false;
+	
+	}
+}
+
+function add_favorite_new(fav_url, fav_tit, fav_cat, fav_top, fav_uid, fav_act, fav_key, fc_num) {
+// added 11/21/2013 for error testing 
+/*
+document.getElementById("gl1").innerHTML = '<br><br><span style="font-size:20px">Oops! We\'re upgrading our server right now and this feature is temporarily unavailable.<br><br><br>It\'ll be back up and running shortly! :)</span><span class="top_right"><a href="" onclick="hide_gl(); return false;" class="td_no_und">[x]</a> <a href="" onclick="hide_gl(); return false;">close</a></span><br><br><br><table width="475px"><tr><td class="td_center"><a href="" onclick="hide_gl(); return false;">Close this Window</a></td></tr><tr><td></td></tr></table>';
+document.getElementById("gl1").style.display = "block";
+return;
+*/
+
+//document.getElementById("sv1data").innerHTML = '<br>Clicking the filing cabinet icon under any worksheet will save the document in your own personal filing cabinet! This feature will be available for your use soon!<br><br><br>Now you\'ll be able to quickly access all of your favorite worksheets and custom generated files in one place on SuperTeacherWorksheets.com!';
+//document.getElementById("sv1").style.display = "block";
+//if (fav_url == 999) {document.getElementById("fc_icon_pv").innerHTML = '<img src="/images/icon-favorite-on.png" alt="Filing Cabinet" title="Filing Cabinet"  class="ico">'; return;}
+//return;
+
+//function add_favorite(fav_url, fav_cat, fav_top, fav_uid, fav_act, fav_key) {
+if (!fav_uid || fav_uid == "0")
+	{
+	//alert("Members who are logged in can use the filing cabinet feature to save their favorite worksheets. Please login to your account or become a member today!");
+	//document.getElementById("sv1data").innerHTML = 'Logged in members can use the Super Teacher Worksheets filing cabinet to save their favorite worksheets.<br><br>Quickly access your most commonly used files AND your custom generated worksheets!<br><br>Please <a href="/login.html">login</a> to your account or <a href="/become-a-member.html">become a member</a> today to utilize this helpful new feature. :)';
+	//document.getElementById("sv1").style.display = "block";
+	return;
+	}
+if (fav_act == "del")//should no longer be sent here 7-3-19
+	{
+	document.getElementById("fc_mod_innertext").innerHTML = "<p>This document is currently stored in your Super Teacher Worksheets filing cabinet.</p><p>Here you can quickly access all of your favorite worksheets and custom generated files in one place!</p><p>Go to your <a href='/filing-cabinet.html'>STW filing cabinet</a> now.</p>";
+	//document.getElementById("sv1data").innerHTML = '<br>This document is currently stored in your Super Teacher Worksheets filing cabinet.<br><br><br>Here you can quickly access all of your favorite worksheets and custom generated files in one place!<br><br>';
+	//document.getElementById("sv1").style.display = "block";
+	return;
+	}
+else if (fav_act == "add")	
+	{
+	xmlhttp=GetXmlHttpObject(); if (xmlhttp===null) {alert("Your browser does not support AJAX!"); return;}
+	fav_tit = encodeURIComponent(fav_tit);
+	//current_img_id = fc_num;
+	//alert(current_img_id);
+	current_url = fav_url;
+	current_cat = fav_cat;
+	current_top = fav_top;
+	current_uid = fav_uid;
+	current_act = fav_act;
+	var url = url_link + "build/ajax_processing.php";
+	url = url + "?act=add_favorite";
+	url = url + "&url="+fav_url;
+	url = url + "&tit="+fav_tit;
+	url = url + "&cat="+fav_cat;
+	url = url + "&top="+fav_top;
+	url = url + "&uid="+fav_uid;
+	url = url + "&wtd="+fav_act;
+	var randomnumber=Math.floor(Math.random()*99999);
+	url=url+"&rn="+randomnumber;
+//	alert(url);
+	xmlhttp.open("GET",url,false);
+	xmlhttp.onreadystatechange=add_favorite_new_result;
+	xmlhttp.send(null);
+	return current_url;
+	}
+}
+
+function del_fav_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	if (result == "Success")
+		{
+		location.reload(); 
+		}
+	}
+}
+
+function del_fav(del_type, del_id, del_uid, del_row) {
+document.getElementById("fcrow"+del_row).style.backgroundColor = "#EED586";
+var r = confirm("Are you sure you want to delete this file?");
+if (r !== true) {document.getElementById("fcrow"+del_row).style.backgroundColor = "#FFF"; return;}
+xmlhttp=GetXmlHttpObject(); if (xmlhttp===null) {alert("Your browser does not support AJAX!"); return;}
+var url = url_link + "build/ajax_processing.php";
+url = url + "?act=del_fav";
+url = url + "&t="+del_type;
+url = url + "&i="+del_id;
+url = url + "&u="+del_uid;
+var randomnumber=Math.floor(Math.random()*99999);
+url=url+"&rn="+randomnumber;
+//alert(url);// return; 
+xmlhttp.open("GET",url,false);
+xmlhttp.onreadystatechange=del_fav_result;
+xmlhttp.send(null);
+}
+
+function add_favorite_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	//alert(result);
+	document.getElementById("sv1data").innerHTML = '<br>This document has been saved in your Super Teacher Worksheets filing cabinet.<br><br><br>Here you can quickly access all of your favorite worksheets and custom generated files in one place!<br><br>';
+	document.getElementById("sv2").style.display = "block";
+	//if (current_uid == 1202330) {alert(1);}
+	document.getElementById("img"+current_url).src = "/images/icon-favorite-on.png"; // to change file cabinet image
+	//if (current_uid == 1202330) {alert(2);}
+	if (current_act == "add") {new_act = "del";} else if (current_act == "del") {new_act = "add";}
+	//if (current_uid == 1202330) {alert(3);}
+	//return false;
+	}
+}
+
+function hide_sv(hsvn) {
+if (hsvn == 2)
+	{
+	document.getElementById("sv2").style.display = "none";
+	}
+else
+	{
+	document.getElementById("sv1").style.display = "none";
+	}
+}
+
+function add_favorite(fav_url, fav_tit, fav_cat, fav_top, fav_uid, fav_act, fav_key) {
+
+// added 11/21/2013 for error testing
+/*
+document.getElementById("gl1").innerHTML = '<br><br><span style="font-size:20px">Oops! We\'re upgrading our server right now and this feature is temporarily unavailable.<br><br><br>It\'ll be back up and running shortly! :)</span><span class="top_right"><a href="" onclick="hide_gl(); return false;" class="td_no_und">[x]</a> <a href="" onclick="hide_gl(); return false;">close</a></span><br><br><br><table width="475px"><tr><td class="td_center"><a href="" onclick="hide_gl(); return false;">Close this Window</a></td></tr><tr><td></td></tr></table>';
+document.getElementById("gl1").style.display = "block";
+return;
+*/
+
+document.getElementById("sv1data").innerHTML = '<br>Clicking the filing cabinet icon under any worksheet will save the document in your own personal filing cabinet! This feature will be available for your use soon!<br><br><br>Now you\'ll be able to quickly access all of your favorite worksheets and custom generated files in one place on SuperTeacherWorksheets.com!';
+//document.getElementById("sv1").style.display = "block";
+if (fav_url == 999) {document.getElementById("fc_icon_pv").innerHTML = '<img src="/images/icon-favorite-on.png" alt="Filing Cabinet" title="Filing Cabinet"  class="ico">'; return;}
+//return;
+
+//function add_favorite(fav_url, fav_cat, fav_top, fav_uid, fav_act, fav_key) {
+if (!fav_uid || fav_uid == "0")
+	{
+	//alert("Members who are logged in can use the filing cabinet feature to save their favorite worksheets. Please login to your account or become a member today!");
+	document.getElementById("sv1data").innerHTML = 'Logged in members can use the Super Teacher Worksheets filing cabinet to save their favorite worksheets.<br><br>Quickly access your most commonly used files AND your custom generated worksheets!<br><br>Please <a href="/login.html">login</a> to your account or <a href="/become-a-member.html">become a member</a> today to utilize this helpful new feature. :)';
+	document.getElementById("sv1").style.display = "block";
+	return;
+	}
+if (fav_act == "del")
+	{
+	document.getElementById("sv1data").innerHTML = '<br>This document is currently stored in your Super Teacher Worksheets filing cabinet.<br><br><br>Here you can quickly access all of your favorite worksheets and custom generated files in one place!<br><br>';
+	document.getElementById("sv1").style.display = "block";
+	return;
+	}
+else if (fav_act == "add")	
+	{
+	xmlhttp=GetXmlHttpObject(); if (xmlhttp===null) {alert("Your browser does not support AJAX!"); return;}
+	fav_tit = encodeURIComponent(fav_tit);
+	current_url = fav_url;
+	current_cat = fav_cat;
+	current_top = fav_top;
+	current_uid = fav_uid;
+	current_act = fav_act;
+	var url = url_link + "build/ajax_processing.php";
+	url = url + "?act=add_favorite";
+	url = url + "&url="+fav_url;
+	url = url + "&tit="+fav_tit;
+	url = url + "&cat="+fav_cat;
+	url = url + "&top="+fav_top;
+	url = url + "&uid="+fav_uid;
+	url = url + "&wtd="+fav_act;
+	var randomnumber=Math.floor(Math.random()*99999);
+	url=url+"&rn="+randomnumber;
+//	alert(url);
+	xmlhttp.open("GET",url,false);
+	xmlhttp.onreadystatechange=add_favorite_result;
+	xmlhttp.send(null);
+	}
+}
+
+function add_favorite_non() {
+document.getElementById("sv1").style.display = "block";
+}
+
+function hide_cc_detail(wins_to_hide) {
+document.getElementById("cc2").style.display = "none";
+if (wins_to_hide == 1)
+	{
+	document.getElementById("cc1").style.display = "block";
+	}
+}
+
+function show_cc_detail(cc_did) {
+if (cc_did == "all")
+	{
+	temp_cc_detail = "";
+	for (i=1; i<temp_cc.length; i++)
+		{
+		temp_cc_detail += temp_gr[i] + " - <span style='font-weight:bold'>" + temp_id[i] + "</span><br><br>" + temp_ct[i] + "<br><br><span style='display:block; margin-left:10px'>&middot; " + temp_sc[i] + "</span><br><span style='display:block; margin-left:20px'>" + temp_cc[i] + "</span><br><hr style='width:50%'><br>";
+		}
+	}
+	else
+	{
+	temp_cc_detail = temp_gr[cc_did] + " - " + temp_id[cc_did] + "<br><br>" + temp_ct[cc_did] + "<br>" + temp_sc[cc_did] + "<br><br>" + temp_cc[cc_did] + "<br><br>";
+	}
+document.getElementById("cc2data").innerHTML = temp_cc_detail;
+document.getElementById("cc1").style.display = "none";
+document.getElementById("cc2").style.display = "block";
+}
+
+function show_cc_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	//alert(result); if (cc_uid_global == 1202330) {alert(result);}
+	if (result.substring(0, 7) == "Success")
+		{
+		result = result.substring(7);
+		pipe = result.indexOf("||");
+		new_link = result.substring(0, pipe);
+		result = result.substring(pipe+2);
+		document.getElementById("cc1title").innerHTML = "<a href='"+url_link+new_link+".pdf'>"+cc_title_global+"</a>";
+		document.getElementById("cc2title").innerHTML = "<a href='"+url_link+new_link+".pdf'>"+cc_title_global+"</a>";
+		pipe = result.indexOf("||");
+		standard_list = result.substring(pipe+2);
+		result = result.substring(0, pipe);
+		document.getElementById("cc1data").innerHTML = result; //document.getElementById("cc2data").innerHTML = result;
+		counter = 1; temp_gr = new Array(); temp_id = new Array(); temp_ct = new Array(); temp_sc = new Array(); temp_cc = new Array();
+		while (standard_list.indexOf("||") != -1)
+			{
+			pipe = standard_list.indexOf("||");
+			temp_data = standard_list.substring(0, pipe);
+			pipe1 = temp_data.indexOf("|");
+			temp_gr[counter] = temp_data.substring(0, pipe1);
+			temp_data = temp_data.substring(pipe1+1);
+			pipe1 = temp_data.indexOf("|");
+			temp_id[counter] = temp_data.substring(0, pipe1);
+			temp_data = temp_data.substring(pipe1+1);
+			pipe1 = temp_data.indexOf("|");
+			temp_ct[counter] = temp_data.substring(0, pipe1);
+			temp_data = temp_data.substring(pipe1+1);
+			pipe1 = temp_data.indexOf("|");
+			temp_sc[counter] = temp_data.substring(0, pipe1);
+			temp_data = temp_data.substring(pipe1+1);
+			temp_cc[counter] = temp_data;
+			standard_list = standard_list.substring(pipe+2);
+			counter++;
+			}			
+		temp_data = standard_list;
+		pipe1 = temp_data.indexOf("|");
+		temp_gr[counter] = temp_data.substring(0, pipe1);
+		temp_data = temp_data.substring(pipe1+1);
+		pipe1 = temp_data.indexOf("|");
+		temp_id[counter] = temp_data.substring(0, pipe1);
+		temp_data = temp_data.substring(pipe1+1);
+		pipe1 = temp_data.indexOf("|");
+		temp_ct[counter] = temp_data.substring(0, pipe1);
+		temp_data = temp_data.substring(pipe1+1);
+		pipe1 = temp_data.indexOf("|");
+		temp_sc[counter] = temp_data.substring(0, pipe1);
+		temp_data = temp_data.substring(pipe1+1);
+		temp_cc[counter] = temp_data;		
+		}
+	else
+		{
+		document.getElementById("cc1data").innerHTML = "There are currently no common core standards listed for this worksheet.<br><br>";
+		}
+	document.getElementById("cc1").style.display = "block";
+	}
+}
+
+function show_cc(cc_codes, cc_url, cc_title, cc_uid) {
+
+// added 11/21/2013 for error testing
+/*
+document.getElementById("gl1").innerHTML = '<br><br><span style="font-size:20px">Oops! We\'re upgrading our server right now and this feature is temporarily unavailable.<br><br><br>It\'ll be back up and running shortly! :)</span><span class="top_right"><a href="" onclick="hide_gl(); return false;" class="td_no_und">[x]</a> <a href="" onclick="hide_gl(); return false;">close</a></span><br><br><br><table width="475px"><tr><td class="td_center"><a href="" onclick="hide_gl(); return false;">Close this Window</a></td></tr><tr><td></td></tr></table>';
+document.getElementById("gl1").style.display = "block";
+return;
+*/
+
+	xmlhttp=GetXmlHttpObject();
+	if (xmlhttp===null)
+		{
+		alert("Your browser does not support AJAX!");
+		return;
+		}
+	cc_title_global = cc_title;
+	cc_id_global = cc_url;
+	if (cc_uid) {cc_uid_global = cc_uid;} else {cc_uid_global = 0;}
+	var url = "/build/ajax_processing.php"; 
+	url = url + "?act=view_cc";
+	url = url + "&ccc="+cc_url;
+	cc_codes_arr = cc_codes.split("|");
+	for (var i=0; i< cc_codes_arr.length; i++)
+		{
+		url = url + "&cc"+i+"="+cc_codes_arr[i];
+		}
+	var randomnumber=Math.floor(Math.random()*99999);
+	url=url+"&rn="+randomnumber;
+	//alert(url);
+	//if (cc_uid == 1202330) {alert(url);}
+	xmlhttp.open("GET",url,false);
+	xmlhttp.onreadystatechange=show_cc_result;
+	xmlhttp.send(null);
+}
+
+function hide_em_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	//alert(result); //alert(hem_type_global); 
+	if (hem_type_global == 1)
+		{
+		//document.getElementById("em1").style.display = "none";
+		//$("#invalidEmailModal").modal("hide");
+		$('#invalidEmailModal').foundation("close");
+		}
+	else if (hem_type_global == 2)
+		{
+		window.location.href = "https://www.superteacherworksheets.com/settings-profile.html";
+		}
+	else if (hem_type_global == 3)
+		{
+		window.location.href = "https://www.superteacherworksheets.com/contact-us.html";
+		}
+	}
+}
+
+function hide_em(hem_id, hem_type) {
+xmlhttp=GetXmlHttpObject();
+if (xmlhttp===null)	{alert("Your browser does not support AJAX!"); return;}
+hem_type_global = hem_type;
+var url = "/build/ajax_processing.php"; 
+url = url + "?act=hide_em";
+url = url + "&hemid="+hem_id;
+url = url + "&hemtype="+hem_type;
+var randomnumber=Math.floor(Math.random()*99999);
+url=url+"&rn="+randomnumber;
+//alert(url);
+xmlhttp.open("GET",url,false);
+xmlhttp.onreadystatechange=hide_em_result;
+xmlhttp.send(null);
+}
+
+function hide_cc() {
+document.getElementById("cc1").style.display = "none";
+document.getElementById("cc2").style.display = "none";
+}
+
+function hide_pv() {
+document.getElementById("pv1").style.display = "none";
+}
+
+function browse_pv(pv_direction) {
+if (pv_direction == 1)
+	{
+	if (currentpvimage < numpvimages)
+		{
+		currentpvimage++;
+		}
+	else if (currentpvimage == numpvimages)
+		{
+		currentpvimage = 1;
+		}
+	}
+else if (pv_direction == 0)
+	{
+	if (currentpvimage > 1)
+		{
+		currentpvimage--;
+		}
+	else if (currentpvimage == 1)
+		{
+		currentpvimage = numpvimages;
+		}
+	}
+document.getElementById("pvimg").innerHTML = '<img src="/images/preview/'+pv_id_global+'00'+currentpvimage+'.jpg" class="preview_border">';
+}
+
+function show_pv_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	//alert(result); 
+	//if (pv_id_global == "PTTMGRR") {alert(result);}
+//if (result.indexOf("@") != -1) {alert(result);}
+	//if (globaltestuid == "1202330") {alert(result);}
+	//if (pvuidglobal == "9999999") {alert(result);}
+	//if (pv_test_ip) {if (pv_test_ip == "74.77.120.31") {alert(result);}}
+	if (result.substring(0, 7) == "Success")
+		{
+		numpvimages = result.substring(7, 8);
+		currentpvimage = 1;
+		result = result.substring(8);
+		findbreak = result.indexOf("||");
+		newpvlink = result.substring(0, findbreak);
+		newpvtitle = result.substring(findbreak+2);
+		//if (pv_id_global == "PTTMGRR") {alert(newpvlink);}
+		//newpvtitle = newpvtitle.substring(0, newpvtitle.length-2);
+		document.getElementById("pv1title").innerHTML = '<a href="/'+newpvlink+'.pdf">'+newpvtitle+'</a>';
+//if (result.indexOf("@") != -1) {alert(result+22);}
+		if (pv_uid_global == 0)
+			{
+			//if (result.indexOf("@") != -1) {alert(result+111);}
+			document.getElementById("pv1title").innerHTML = newpvtitle;
+			//if (result.indexOf("@@") != -1)
+				//{
+				//alert(result+3333);
+				//if (pv_id_global == "PTTMGRR") {alert(newpvlink);}
+				document.getElementById("pvlink").href = '/'+newpvlink+'.pdf';
+				//}
+			//if (result.indexOf("@") != -1) {alert(result+1111);}
+			}
+			else
+			{
+			//if (result.indexOf("@") != -1) {alert(result+222);}
+			document.getElementById("pv1title").innerHTML = '<a href="/'+newpvlink+'.pdf">'+newpvtitle+'</a>';
+			document.getElementById("pvlink").href = '/'+newpvlink+'.pdf';
+			}
+//if (result.indexOf("@") != -1) {alert(result+33);}		
+		if (numpvimages == "1")
+			{
+			document.getElementById("arrow_left").style.display = "none";
+			document.getElementById("arrow_right").style.display = "none";
+			}
+			else
+			{
+			document.getElementById("arrow_left").style.display = "block";
+			document.getElementById("arrow_right").style.display = "block";
+			}
+//if (result.indexOf("@") != -1) {alert(result+44);}		
+		document.getElementById("pv1").style.display = "block";
+		}
+	}
+}
+
+function show_pv(pv_id, pv_title, pv_uid) {
+//if (pv_test_ip) {} else {pv_test_ip = "192.168.1.1";}
+//if (pv_test_ip) {if (pv_test_ip == "74.77.120.31") {alert(pv_test_ip);}}
+//if (globaltestuid == "1202330") {alert(1);}
+// added 11/21/2013 for error testing
+/*
+document.getElementById("gl1").innerHTML = '<br><br><span style="font-size:20px">Oops! We\'re upgrading our server right now and this feature is temporarily unavailable.<br><br><br>It\'ll be back up and running shortly! :)</span><span class="top_right"><a href="" onclick="hide_gl(); return false;" class="td_no_und">[x]</a> <a href="" onclick="hide_gl(); return false;">close</a></span><br><br><br><table width="475px"><tr><td class="td_center"><a href="" onclick="hide_gl(); return false;">Close this Window</a></td></tr><tr><td></td></tr></table>';
+document.getElementById("gl1").style.display = "block";
+return;  
+*/
+
+
+pv_id_global = pv_id;
+pv_uid_global = pv_uid;	
+pv_id = pv_id.replace("\/", "_");
+document.getElementById("pvimg").innerHTML = '<img src="/images/preview/'+pv_id+'001.jpg" class="preview_border">';
+
+xmlhttp=GetXmlHttpObject();
+if (xmlhttp===null)	{alert("Your browser does not support AJAX!"); return;}
+
+var url = "/build/ajax_processing.php"; 
+url = url + "?act=show_pv";
+url = url + "&pvu="+pv_uid;
+url = url + "&pvi="+pv_id;
+var randomnumber=Math.floor(Math.random()*99999);
+url=url+"&rn="+randomnumber;
+//alert(url);
+//if (globaltestuid == "9999999") {alert(url);}
+//if (pv_uid == "9999999") {pvuidglobal = pd_uid; alert(url);}
+//if (pv_test_ip) {if (pv_test_ip == "74.77.120.31") {alert(url);}}
+xmlhttp.open("GET",url,false);
+xmlhttp.onreadystatechange=show_pv_result;
+xmlhttp.send(null);
+}
+
+function getOrdinal(n) {
+    if((parseFloat(n) == parseInt(n)) && !isNaN(n)){
+        var s=["th","st","nd","rd"],
+        v=n%100;
+        return n+(s[(v-20)%10]||s[v]||s[0]);
+    }
+    return n;     
+}
+
+function show_gl_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	//alert(result);
+	if (result.substring(0, 7) == "Success")
+		{
+		result = result.substring(7);
+		new_link = result;
+		document.getElementById("gl1title").innerHTML = "<a href='"+url_link+new_link+".pdf'>"+gl_title_global+"</a>";
+		document.getElementById("gl1").style.display = "block";
+		}
+	}
+}
+
+function show_gl(gl_codes, gl_url, gl_title) {
+
+// added 11/21/2013 for error testing
+/*
+document.getElementById("gl1").innerHTML = '<br><br><span style="font-size:20px">Oops! We\'re upgrading our server right now and this feature is temporarily unavailable.<br><br><br>It\'ll be back up and running shortly! :)</span><span class="top_right"><a href="" onclick="hide_gl(); return false;" class="td_no_und">[x]</a> <a href="" onclick="hide_gl(); return false;">close</a></span><br><br><br><table width="475px"><tr><td class="td_center"><a href="" onclick="hide_gl(); return false;">Close this Window</a></td></tr><tr><td></td></tr></table>';
+document.getElementById("gl1").style.display = "block";
+return;
+*/
+
+counter = 1; temp_gr = new Array(); temp_id = new Array(); temp_ct = new Array(); temp_sc = new Array(); temp_cc = new Array();
+temp_data = "";
+counter = 0;
+//gl_codes = gl_codes.replace("P", "Pre-K");
+//gl_codes = gl_codes.replace("Pre-K", "Pre-K");
+gl_codes = gl_codes.replace("K", "Kindergarten");
+gl_codes = gl_codes.replace("P", "Pre-Kindergarten");
+
+if (gl_codes.indexOf("|") != -1)
+	{
+	while (gl_codes.indexOf("|") != -1)
+		{
+		pipe = gl_codes.indexOf("|");
+		ordinal = getOrdinal(gl_codes.substring(0, pipe));
+		if (counter == 0) {temp_data += ordinal;}
+		gl_codes = gl_codes.substring(pipe+1);
+		counter++;
+		}
+	temp_data += " through " + getOrdinal(gl_codes.substring(0, pipe));
+	}
+	else
+	{
+	temp_data += getOrdinal(gl_codes);
+	}
+
+document.getElementById("gl1data").innerHTML = temp_data;
+gl_title_global = gl_title;
+
+xmlhttp=GetXmlHttpObject();
+if (xmlhttp===null)	{alert("Your browser does not support AJAX!"); return;}
+
+var url = "/build/ajax_processing.php"; 
+url = url + "?act=show_gl";
+url = url + "&glc="+gl_url;
+var randomnumber=Math.floor(Math.random()*99999);
+url=url+"&rn="+randomnumber;
+//alert(url);
+xmlhttp.open("GET",url,false);
+xmlhttp.onreadystatechange=show_gl_result;
+xmlhttp.send(null);
+}
+
+function hide_gl() {
+document.getElementById("gl1").style.display = "none";
+}
+
+function show_fb(cc_id) {
+document.getElementById("cc3title").innerHTML = cc_title_global;
+//cc_id_global = cc_url;
+prev_cc_id = cc_id;
+document.getElementById("cc1").style.display = "none";
+document.getElementById("cc2").style.display = "none";
+document.getElementById("cc3").style.display = "block";
+if (document.getElementById("cc_fb_text")) {document.getElementById("cc_fb_text").focus();}
+}
+
+function sub_fb_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	//alert(result);
+	if (result.substring(0, 7) == "Success")
+		{
+		document.getElementById("cc3data").innerHTML = "<br><br>Thank you for your feedback! We will review it shortly.<br><br><br>";
+		}
+		else
+		{
+		alert("There was an error sending your feedback. Please try again later.");
+		}
+	}
+}
+
+function sub_fb() {
+xmlhttp=GetXmlHttpObject();
+if (xmlhttp===null)	{alert("Your browser does not support AJAX!"); return;}
+var url = "/build/ajax_processing.php"; 
+url = url + "?act=submit_fb";
+url = url + "&cci="+cc_id_global;
+url = url + "&fb="+document.getElementById("cc_fb_text").value;
+var randomnumber=Math.floor(Math.random()*99999);
+url=url+"&rn="+randomnumber;
+//alert(url);
+xmlhttp.open("GET",url,false);
+xmlhttp.onreadystatechange=sub_fb_result;
+xmlhttp.send(null);
+}
+
+function submit_fb() {
+xmlhttp=GetXmlHttpObject();
+if (xmlhttp===null)	{alert("Your browser does not support AJAX!"); return;}
+
+var url = "/build/ajax_processing.php"; 
+url = url + "?act=submit_fb";
+url = url + "&cci="+cc_id_global;
+url = url + "&fb="+document.getElementById("cc_fb_text").value;
+var randomnumber=Math.floor(Math.random()*99999);
+url=url+"&rn="+randomnumber;
+//alert(url);
+return;
+xmlhttp.open("GET",url,false);
+xmlhttp.onreadystatechange=submit_fb_result;
+xmlhttp.send(null);
+}
+
+function hide_fb(hide_fb_key) {
+document.getElementById("cc3").style.display = "none";
+if (hide_fb_key != "1") {document.getElementById("cc"+prev_cc_id).style.display = "block";}
+}
+
+function signup_down_notify_result() {
+if (xmlhttp.readyState==4)
+    {
+	var result = xmlhttp.responseText;
+	alert(result);
+	document.getElementById("notify_form").innerHTML = "Thanks for your interest in joining our community! We'll send you a short email reminder as soon as our updates are completed. Until then, feel free to browse all of the free resources on Super Teacher Worksheets!";
+    }
+}
+
+function signup_down_notify() {
+alert(1);
+xmlhttp=GetXmlHttpObject();
+if (xmlhttp===null) {alert("Your browser does not support AJAX!"); return;}
+var url = "/build/ajax_processing.php";
+url = url + "?act=signup_down_notify";
+url = url + "&e="+document.getElementById("email_notify").value;
+var randomnumber=Math.floor(Math.random()*99999);
+url=url+"&rn="+randomnumber;
+alert(url);
+xmlhttp.open("GET",url,false);
+xmlhttp.onreadystatechange=signup_down_notify_result;
+xmlhttp.send(null);
+}
+
+function view_alt_lang() {
+document.getElementById("lang_message").style.display = "block";
+}
